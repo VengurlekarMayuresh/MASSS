@@ -1,0 +1,15 @@
+/* --- Variable Definitions --- */
+:root {
+  --text-dark: #333;
+}
+
+/* --- Footer --- */
+.footer {
+  background: var(--text-dark);
+  color: #ccc;
+  padding: 3rem 1.5rem;
+  text-align: center;
+}
+.footer p {
+  margin-bottom: 0.5rem;
+}
