@@ -1,29 +1,7 @@
-import React, { useState } from 'react';
+import React, { useState, useEffect } from 'react';
 import { Link, useNavigate } from 'react-router-dom';
-import './login.css'; // Make sure this CSS file is in the same directory
-
-// Import Firebase modules
-import { initializeApp } from "firebase/app";
-import { getAuth, createUserWithEmailAndPassword, signInWithEmailAndPassword } from "firebase/auth";
-import { getFirestore, doc, setDoc, getDoc } from "firebase/firestore";
-
-// Your web app's Firebase configuration
-// IMPORTANT: For production, use environment variables to store your Firebase config.
-const firebaseConfig = {
-  apiKey: "AIzaSyBDqtCjaXf_2XUqebhS2K0CeVXEktUDHMQ",
-  authDomain: "masss-6dbc3.firebaseapp.com",
-  projectId: "masss-6dbc3",
-  storageBucket: "masss-6dbc3.firebasestorage.app",
-  messagingSenderId: "638199930794",
-  appId: "1:638199930794:web:d469cafda02e6df44095d3",
-  measurementId: "G-LT6JSJ2RWC"
-};
-
-// Initialize Firebase
-const app = initializeApp(firebaseConfig);
-const auth = getAuth(app);
-const db = getFirestore(app);
-
+import { useAuth } from '../context/AuthContext';
+import './login.css';
 
 const Login = () => {
   const [isSignUp, setIsSignUp] = useState(false);
@@ -31,23 +9,24 @@ const Login = () => {
   const [showPassword, setShowPassword] = useState(false);
   const [showConfirmPassword, setShowConfirmPassword] = useState(false);
 
-  // Form data states
+  // Form states
   const [signUpData, setSignUpData] = useState({
-    signUpName: '',
-    signUpEmail: '',
+    name: '',
+    email: '',
     phone: '',
     gender: '',
     dateOfBirth: '',
-    role: '', // Added role field
+    role: '',
     address: '',
     city: '',
     zipCode: '',
-    signUpPassword: '',
+    password: '',
     confirmPassword: ''
   });
+
   const [signInData, setSignInData] = useState({
-    signInEmail: '',
-    signInPassword: ''
+    email: '',
+    password: ''
   });
 
   // UI states
@@ -56,218 +35,187 @@ const Login = () => {
   const [message, setMessage] = useState({ text: '', type: '' });
 
   const navigate = useNavigate();
+  const { currentUser, login, register } = useAuth();
 
-  // Handlers for input changes
+  // Redirect if already logged in
+  useEffect(() => {
+    if (currentUser) {
+      navigate('/', { replace: true });
+    }
+  }, [currentUser, navigate]);
+
+  // --- Handlers ---
   const handleSignUpChange = (e) => {
     const { name, value } = e.target;
     setSignUpData(prev => ({ ...prev, [name]: value }));
-    if(errors[name]) {
-        setErrors(prev => ({...prev, [name]: null}));
-    }
+    if (errors[name]) setErrors(prev => ({ ...prev, [name]: null }));
   };
 
   const handleSignInChange = (e) => {
     const { name, value } = e.target;
     setSignInData(prev => ({ ...prev, [name]: value }));
-    if(errors[name]) {
-        setErrors(prev => ({...prev, [name]: null}));
-    }
+    if (errors[name]) setErrors(prev => ({ ...prev, [name]: null }));
   };
 
-  // --- VALIDATION LOGIC ---
+  // --- Validation ---
   const validateStep1 = () => {
     const newErrors = {};
-    const { signUpName, signUpEmail, phone, gender, dateOfBirth, role } = signUpData;
-    if (!signUpName.trim()) newErrors.signUpName = 'Full Name is required.';
-    if (!signUpEmail.trim()) {
-        newErrors.signUpEmail = 'Email Address is required.';
-    } else if (!/^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(signUpEmail)) {
-        newErrors.signUpEmail = 'Please enter a valid email address.';
+    const { name, email, phone, gender, dateOfBirth, role } = signUpData;
+    if (!name.trim()) newErrors.name = 'Full Name is required.';
+    if (!email.trim()) {
+      newErrors.email = 'Email Address is required.';
+    } else if (!/^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(email)) {
+      newErrors.email = 'Enter a valid email address.';
     }
     if (!phone.trim()) {
-        newErrors.phone = 'Phone Number is required.';
+      newErrors.phone = 'Phone Number is required.';
     } else if (!/^\d{10}$/.test(phone)) {
-        newErrors.phone = 'Phone number must be 10 digits.';
+      newErrors.phone = 'Phone number must be 10 digits.';
     }
     if (!gender) newErrors.gender = 'Please select a gender.';
     if (!dateOfBirth) newErrors.dateOfBirth = 'Date of birth is required.';
-    if (!role) newErrors.role = 'Please select a role.'; // Added role validation
-    
+    if (!role) newErrors.role = 'Please select a role.';
+
     setErrors(newErrors);
     return Object.keys(newErrors).length === 0;
   };
 
   const validateStep2 = () => {
     const newErrors = {};
-    const { address, city, zipCode, signUpPassword, confirmPassword } = signUpData;
+    const { address, city, zipCode, password, confirmPassword } = signUpData;
     if (!address.trim()) newErrors.address = 'Address is required.';
     if (!city.trim()) newErrors.city = 'City is required.';
     if (!zipCode.trim()) {
-        newErrors.zipCode = 'Zip code is required.';
+      newErrors.zipCode = 'Zip code is required.';
     } else if (!/^\d{6}$/.test(zipCode)) {
-        newErrors.zipCode = 'Zip code must be 6 digits.';
+      newErrors.zipCode = 'Zip must be 6 digits.';
     }
-    if (!signUpPassword) {
-        newErrors.signUpPassword = 'Password is required.';
-    } else if (!/^(?=.*[a-zA-Z])(?=.*\d)(?=.*[!@#$%^&*()_+={}[\]|\\:;"'<,>.?/~`]).{8,}$/.test(signUpPassword)) {
-        newErrors.signUpPassword = 'Password must be at least 8 characters with letters, numbers, and symbols.';
+    if (!password) {
+      newErrors.password = 'Password is required.';
+    } else if (!/^(?=.*[a-zA-Z])(?=.*\d)(?=.*[!@#$%^&*()_+]).{8,}$/.test(password)) {
+      newErrors.password = 'Password must be 8+ chars with letters, numbers & symbols.';
     }
-    if (signUpPassword !== confirmPassword) {
-        newErrors.confirmPassword = 'Passwords do not match.';
+    if (password !== confirmPassword) {
+      newErrors.confirmPassword = 'Passwords do not match.';
     }
-    
+
     setErrors(newErrors);
     return Object.keys(newErrors).length === 0;
   };
 
   const validateSignIn = () => {
     const newErrors = {};
-    const { signInEmail, signInPassword } = signInData;
-    if (!signInEmail.trim()) {
-        newErrors.signInEmail = 'Email is required.';
-    } else if (!/^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(signInEmail)) {
-        newErrors.signInEmail = 'Please enter a valid email address.';
-    }
-    if (!signInPassword) newErrors.signInPassword = 'Password is required.';
-
+    const { email, password } = signInData;
+    if (!email.trim()) newErrors.email = 'Email is required.';
+    if (!password) newErrors.password = 'Password is required.';
     setErrors(newErrors);
     return Object.keys(newErrors).length === 0;
   };
 
-  // --- FORM NAVIGATION ---
+  // --- Navigation between steps ---
   const handleNextStep = () => {
-    if (validateStep1()) {
-      setCurrentStep(2);
-    }
+    if (validateStep1()) setCurrentStep(2);
   };
+  const handlePrevStep = () => setCurrentStep(1);
 
-  const handlePrevStep = () => {
-    setCurrentStep(1);
-  };
-
-  // --- FIREBASE SUBMISSIONS ---
+  // --- Submit: Sign Up ---
   const handleSignUpSubmit = async (e) => {
     e.preventDefault();
     if (!validateStep2()) return;
-    
+
     setIsLoading(true);
     setMessage({ text: '', type: '' });
 
     try {
-      const userCredential = await createUserWithEmailAndPassword(auth, signUpData.signUpEmail, signUpData.signUpPassword);
-      const user = userCredential.user;
+      const result = await register(signUpData);
 
-      await setDoc(doc(db, `users/${user.uid}`), {
-        name: signUpData.signUpName,
-        email: signUpData.signUpEmail,
-        phone: signUpData.phone,
-        gender: signUpData.gender,
-        dob: signUpData.dateOfBirth,
-        role: signUpData.role, // Saving role to Firestore
-        address: signUpData.address,
-        city: signUpData.city,
-        zipCode: signUpData.zipCode,
-        createdAt: new Date()
-      });
-
-      setMessage({ text: `Account created successfully! Please sign in.`, type: 'success' });
-      setTimeout(() => {
-        setIsSignUp(false);
-        setCurrentStep(1);
-        setMessage({ text: '', type: '' });
-      }, 2000);
-
-    } catch (error) {
-      let friendlyMessage = "Failed to create account. Please try again.";
-      if (error.code === 'auth/email-already-in-use') friendlyMessage = "This email address is already in use.";
-      if (error.code === 'auth/weak-password') friendlyMessage = "Password is too weak.";
-      setMessage({ text: friendlyMessage, type: 'error' });
+      if (result.success) {
+        setMessage({ text: "✅ Account created! Redirecting...", type: "success" });
+        // navigate immediately and also let the currentUser effect catch it
+        setTimeout(() => {
+          setMessage({ text: '', type: '' });
+          navigate("/", { replace: true });
+        }, 900);
+      } else {
+        setMessage({ text: result.message || "Registration failed", type: "error" });
+      }
+    } catch (err) {
+      setMessage({ text: err.message || "Server error", type: "error" });
     } finally {
       setIsLoading(false);
     }
   };
 
+  // --- Submit: Sign In ---
   const handleSignInSubmit = async (e) => {
     e.preventDefault();
     if (!validateSignIn()) return;
-    
+
     setIsLoading(true);
     setMessage({ text: '', type: '' });
 
-    try {
-      const userCredential = await signInWithEmailAndPassword(auth, signInData.signInEmail, signInData.signInPassword);
-      const user = userCredential.user;
-      
-      const docSnap = await getDoc(doc(db, `users/${user.uid}`));
+    const result = await login(signInData.email, signInData.password);
 
-      if (docSnap.exists()) {
-        const userData = docSnap.data();
-        setMessage({ text: `Welcome back, ${userData.name}! Redirecting...`, type: 'success' });
-        setTimeout(() => navigate('/'), 2000); 
-      } else {
-        throw new Error("User data not found.");
-      }
-
-    } catch (error) {
-      setMessage({ text: "Invalid email or password. Please try again.", type: 'error' });
-    } finally {
+    if (result.success) {
+      setMessage({ text: "Welcome back! Redirecting...", type: "success" });
+      setTimeout(() => navigate("/", { replace: true }), 600);
+    } else {
+      setMessage({ text: result.message || "Invalid credentials", type: "error" });
       setIsLoading(false);
     }
   };
 
-  // --- RENDER METHOD ---
+  // --- Render ---
   return (
     <div className="login-body">
       <Link to="/" className="back-to-home">
-        <i className="fas fa-arrow-left"></i>
-        Back to Home
+        <i className="fas fa-arrow-left"></i> Back to Home
       </Link>
 
       <div className={`container ${isSignUp ? 'right-panel-active' : ''}`} id="container">
-        {/* --- SIGN UP FORM --- */}
+        {/* SIGN UP */}
         <div className="form-container sign-up-container">
-          <form id="signUpForm" className="multi-step-form" onSubmit={handleSignUpSubmit} noValidate>
+          <form className="multi-step-form" onSubmit={handleSignUpSubmit}>
             <div className={`form-step ${currentStep === 1 ? 'active' : ''}`}>
-              <h3>Step 1: Personal Information</h3>
+              <h3>Step 1: Personal Info</h3>
               <div className="input-group">
                 <i className="fas fa-user"></i>
-                <input type="text" name="signUpName" placeholder="Full Name" value={signUpData.signUpName} onChange={handleSignUpChange} required />
-                {errors.signUpName && <span className="validation-message">{errors.signUpName}</span>}
+                <input type="text" name="name" placeholder="Full Name" value={signUpData.name} onChange={handleSignUpChange} />
+                {errors.name && <span>{errors.name}</span>}
               </div>
               <div className="input-group">
                 <i className="fas fa-envelope"></i>
-                <input type="email" name="signUpEmail" placeholder="Email Address" value={signUpData.signUpEmail} onChange={handleSignUpChange} required />
-                {errors.signUpEmail && <span className="validation-message">{errors.signUpEmail}</span>}
+                <input type="email" name="email" placeholder="Email" value={signUpData.email} onChange={handleSignUpChange} />
+                {errors.email && <span>{errors.email}</span>}
               </div>
               <div className="input-group">
                 <i className="fas fa-phone"></i>
-                <input type="tel" name="phone" placeholder="Phone Number" value={signUpData.phone} onChange={handleSignUpChange} required />
-                {errors.phone && <span className="validation-message">{errors.phone}</span>}
+                <input type="tel" name="phone" placeholder="Phone" value={signUpData.phone} onChange={handleSignUpChange} />
+                {errors.phone && <span>{errors.phone}</span>}
               </div>
               <div className="input-group select-wrapper">
                 <i className="fas fa-venus-mars"></i>
-                <select name="gender" value={signUpData.gender} onChange={handleSignUpChange} required>
-                  <option value="">Select Gender</option>
+                <select name="gender" value={signUpData.gender} onChange={handleSignUpChange}>
+                  <option value="">Gender</option>
                   <option value="male">Male</option>
                   <option value="female">Female</option>
                   <option value="other">Other</option>
                 </select>
-                {errors.gender && <span className="validation-message">{errors.gender}</span>}
+                {errors.gender && <span>{errors.gender}</span>}
               </div>
               <div className="input-group">
                 <i className="fas fa-calendar"></i>
-                <input type="date" name="dateOfBirth" value={signUpData.dateOfBirth} onChange={handleSignUpChange} required />
-                {errors.dateOfBirth && <span className="validation-message">{errors.dateOfBirth}</span>}
+                <input type="date" name="dateOfBirth" value={signUpData.dateOfBirth} onChange={handleSignUpChange} />
+                {errors.dateOfBirth && <span>{errors.dateOfBirth}</span>}
               </div>
-              {/* Added Role Selection */}
               <div className="input-group select-wrapper">
-                  <i className="fas fa-user-md"></i>
-                  <select name="role" value={signUpData.role} onChange={handleSignUpChange} required>
-                      <option value="">Register as a...</option>
-                      <option value="patient">Patient</option>
-                      <option value="doctor">Doctor</option>
-                  </select>
-                  {errors.role && <span className="validation-message">{errors.role}</span>}
+                <i className="fas fa-user-md"></i>
+                <select name="role" value={signUpData.role} onChange={handleSignUpChange}>
+                  <option value="">Register as...</option>
+                  <option value="patient">Patient</option>
+                  <option value="doctor">Doctor</option>
+                </select>
+                {errors.role && <span>{errors.role}</span>}
               </div>
               <div className="button-row">
                 <button type="button" onClick={handleNextStep}>Next</button>
@@ -278,80 +226,115 @@ const Login = () => {
               <h3>Step 2: Address & Credentials</h3>
               <div className="input-group">
                 <i className="fas fa-address-book"></i>
-                <input type="text" name="address" placeholder="Full Address" value={signUpData.address} onChange={handleSignUpChange} required />
-                {errors.address && <span className="validation-message">{errors.address}</span>}
+                <input type="text" name="address" placeholder="Address" value={signUpData.address} onChange={handleSignUpChange} />
+                {errors.address && <span>{errors.address}</span>}
               </div>
               <div className="input-group">
                 <i className="fas fa-map-marker"></i>
-                <input type="text" name="city" placeholder="City" value={signUpData.city} onChange={handleSignUpChange} required />
-                {errors.city && <span className="validation-message">{errors.city}</span>}
+                <input type="text" name="city" placeholder="City" value={signUpData.city} onChange={handleSignUpChange} />
+                {errors.city && <span>{errors.city}</span>}
               </div>
               <div className="input-group">
                 <i className="fas fa-building"></i>
-                <input type="text" name="zipCode" placeholder="Zip Code" value={signUpData.zipCode} onChange={handleSignUpChange} required />
-                {errors.zipCode && <span className="validation-message">{errors.zipCode}</span>}
+                <input type="text" name="zipCode" placeholder="Zip Code" value={signUpData.zipCode} onChange={handleSignUpChange} />
+                {errors.zipCode && <span>{errors.zipCode}</span>}
               </div>
               <div className="input-group">
                 <i className="fas fa-lock"></i>
-                <input type={showPassword ? "text" : "password"} name="signUpPassword" placeholder="Password" value={signUpData.signUpPassword} onChange={handleSignUpChange} required />
-                <i className={`fas ${showPassword ? "fa-eye-slash" : "fa-eye"} password-toggle`} onClick={() => setShowPassword(!showPassword)}></i>
-                {errors.signUpPassword && <span className="validation-message">{errors.signUpPassword}</span>}
+                <input type={showPassword ? "text" : "password"} name="password" placeholder="Password" value={signUpData.password} onChange={handleSignUpChange} />
+                <i
+                  className={`fas ${showPassword ? "fa-eye-slash" : "fa-eye"} password-toggle`}
+                  onClick={() => setShowPassword(!showPassword)}
+                ></i>
+                {errors.password && <span>{errors.password}</span>}
               </div>
               <div className="input-group">
                 <i className="fas fa-lock"></i>
-                <input type={showConfirmPassword ? "text" : "password"} name="confirmPassword" placeholder="Confirm Password" value={signUpData.confirmPassword} onChange={handleSignUpChange} required />
-                <i className={`fas ${showConfirmPassword ? "fa-eye-slash" : "fa-eye"} password-toggle`} onClick={() => setShowConfirmPassword(!showConfirmPassword)}></i>
-                {errors.confirmPassword && <span className="validation-message">{errors.confirmPassword}</span>}
+                <input
+                  type={showConfirmPassword ? "text" : "password"}
+                  name="confirmPassword"
+                  placeholder="Confirm Password"
+                  value={signUpData.confirmPassword}
+                  onChange={handleSignUpChange}
+                />
+                <i
+                  className={`fas ${showConfirmPassword ? "fa-eye-slash" : "fa-eye"} password-toggle`}
+                  onClick={() => setShowConfirmPassword(!showConfirmPassword)}
+                ></i>
+                {errors.confirmPassword && <span>{errors.confirmPassword}</span>}
               </div>
               <div className="button-row">
                 <button type="button" onClick={handlePrevStep}>Back</button>
-                <button type="submit" disabled={isLoading}>{isLoading ? 'Creating Account...' : 'Submit'}</button>
+                <button type="submit" disabled={isLoading}>{isLoading ? "Creating..." : "Submit"}</button>
               </div>
             </div>
-            <div className={`form-message ${message.type}`}>
-                {isLoading && !message.text && <div className="loader"></div>}
-                {message.text}
-            </div>
+
+            {message.text && <div className={`form-message ${message.type}`}>{message.text}</div>}
           </form>
         </div>
 
-        {/* --- SIGN IN FORM --- */}
+        {/* SIGN IN */}
         <div className="form-container sign-in-container">
-          <form id="signInForm" onSubmit={handleSignInSubmit} noValidate>
+          <form onSubmit={handleSignInSubmit}>
             <h1>Welcome Back</h1>
             <div className="input-group">
               <i className="fas fa-envelope"></i>
-              <input type="email" name="signInEmail" placeholder="Email Address" value={signInData.signInEmail} onChange={handleSignInChange} required />
-              {errors.signInEmail && <span className="validation-message">{errors.signInEmail}</span>}
+              <input type="email" name="email" placeholder="Email" value={signInData.email} onChange={handleSignInChange} />
+              {errors.email && <span>{errors.email}</span>}
             </div>
             <div className="input-group">
               <i className="fas fa-lock"></i>
-              <input type={showPassword ? "text" : "password"} name="signInPassword" placeholder="Password" value={signInData.signInPassword} onChange={handleSignInChange} required />
-              <i className={`fas ${showPassword ? "fa-eye-slash" : "fa-eye"} password-toggle`} onClick={() => setShowPassword(!showPassword)}></i>
-              {errors.signInPassword && <span className="validation-message">{errors.signInPassword}</span>}
+              <input type={showPassword ? "text" : "password"} name="password" placeholder="Password" value={signInData.password} onChange={handleSignInChange} />
+              <i
+                className={`fas ${showPassword ? "fa-eye-slash" : "fa-eye"} password-toggle`}
+                onClick={() => setShowPassword(!showPassword)}
+              ></i>
+              {errors.password && <span>{errors.password}</span>}
             </div>
-            <a href="#" className="form-link">Forgot your password?</a>
-            <button type="submit" disabled={isLoading}>{isLoading ? 'Signing In...' : 'Sign In'}</button>
-            <div className={`form-message ${message.type}`}>
-                {isLoading && !message.text && <div className="loader"></div>}
-                {message.text}
-            </div>
-            <a className="form-link mobile-toggle" onClick={() => { setIsSignUp(true); setMessage({text: '', type: ''}); }}>Don't have an account? Sign Up</a>
+            <a href="#" className="form-link">Forgot password?</a>
+            <button type="submit" disabled={isLoading}>{isLoading ? "Signing In..." : "Sign In"}</button>
+            {message.text && <div className={`form-message ${message.type}`}>{message.text}</div>}
+            <a
+              className="form-link mobile-toggle"
+              onClick={() => {
+                setIsSignUp(true);
+                setMessage({ text: '', type: '' });
+              }}
+            >
+              Don’t have an account? Sign Up
+            </a>
           </form>
         </div>
 
-        {/* --- OVERLAY --- */}
+        {/* Overlay */}
         <div className="overlay-container">
           <div className="overlay">
             <div className="overlay-panel overlay-left">
               <h1>Already have an account?</h1>
-              <p>Please login with your personal info to stay connected with us</p>
-              <button className="ghost" onClick={() => { setIsSignUp(false); setMessage({text: '', type: ''}); setCurrentStep(1); }}>Sign In</button>
+              <p>Login with your personal info</p>
+              <button
+                className="ghost"
+                onClick={() => {
+                  setIsSignUp(false);
+                  setMessage({ text: '', type: '' });
+                  setCurrentStep(1);
+                }}
+              >
+                Sign In
+              </button>
             </div>
             <div className="overlay-panel overlay-right">
               <h1>Hello, Friend!</h1>
-              <p>Enter your personal details and start your journey with us</p>
-              <button className="ghost" onClick={() => { setIsSignUp(true); setMessage({text: '', type: ''}); }}>Sign Up</button>
+              <p>Enter your details & start your journey</p>
+              <button
+                className="ghost"
+                onClick={() => {
+                  setIsSignUp(true);
+                  setMessage({ text: '', type: '' });
+                }}
+              >
+                Sign Up
+              </button>
             </div>
           </div>
         </div>

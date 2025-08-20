@@ -48,7 +48,14 @@ const userSchema = new mongoose.Schema({
       name: { type: String, required: false },
       relationship: { type: String, required: false },
       phone: { type: String, required: false }
-    }
+    },
+     insuranceInfo: {
+    provider: { type: String, required: false },
+    policyNumber: { type: String, required: false },
+    coverageType: { type: String, required: false },
+    effectiveDate: { type: Date, required: false },
+    expirationDate: { type: Date, required: false }
+  },
   },
   // Doctor-specific fields
   doctorInfo: {
