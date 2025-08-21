@@ -1,5 +1,6 @@
 import React, { useState } from 'react';
 import { Search, Heart, Activity, Brain, Apple, Dumbbell, Sun, Moon, BookOpen, Clock, User } from 'lucide-react';
+import './HealthyLiving.css';
 
 const HealthyLiving = () => {
   const [searchQuery, setSearchQuery] = useState('');
@@ -102,34 +103,34 @@ const HealthyLiving = () => {
   };
 
   return (
-    <div className="healthy-living-container">
-      <div className="container">
+    <div className="health-living-container">
+      <div className="health-container">
         {/* Header */}
-        <div className="page-header">
+        <div className="health-page-header">
           <h1>Healthy Living Secrets</h1>
           <p>Discover tips, articles, and expert advice for a healthier lifestyle</p>
         </div>
 
         {/* Search and Categories */}
-        <div className="search-categories-section">
-          <div className="search-container">
-            <div className="search-input-wrapper">
-              <Search size={20} className="search-icon" />
+        <div className="health-search-categories-section">
+          <div className="health-search-container">
+            <div className="health-search-input-wrapper">
+              <Search size={20} className="health-search-icon" />
               <input
                 type="text"
                 placeholder="Search for health topics, tips, or articles..."
                 value={searchQuery}
                 onChange={(e) => setSearchQuery(e.target.value)}
-                className="search-input"
+                className="health-search-input"
               />
             </div>
           </div>
 
-          <div className="categories-container">
+          <div className="health-categories-container">
             {categories.map(category => (
               <button
                 key={category.id}
-                className={`category-btn ${selectedCategory === category.id ? 'active' : ''}`}
+                className={`health-category-btn ${selectedCategory === category.id ? 'active' : ''}`}
                 onClick={() => setSelectedCategory(category.id)}
               >
                 {category.icon}
@@ -141,13 +142,13 @@ const HealthyLiving = () => {
 
         {/* Featured Article */}
         {filteredArticles.length > 0 && (
-          <div className="featured-article">
-            <div className="featured-content">
-              <div className="featured-text">
-                <span className="featured-badge">Featured</span>
+          <div className="health-featured-article">
+            <div className="health-featured-content">
+              <div className="health-featured-text">
+                <span className="health-featured-badge">Featured</span>
                 <h2>{filteredArticles[0].title}</h2>
                 <p>{filteredArticles[0].excerpt}</p>
-                <div className="article-meta">
+                <div className="health-article-meta">
                   <span className="author">
                     <User size={14} />
                     {filteredArticles[0].author}
@@ -160,9 +161,9 @@ const HealthyLiving = () => {
                     {formatDate(filteredArticles[0].publishDate)}
                   </span>
                 </div>
-                <button className="btn btn-primary">Read Full Article</button>
+                <button className="health-btn health-btn-primary">Read Full Article</button>
               </div>
-              <div className="featured-image">
+              <div className="health-featured-image">
                 <img 
                   src={filteredArticles[0].image} 
                   alt={filteredArticles[0].title}
@@ -173,31 +174,31 @@ const HealthyLiving = () => {
         )}
 
         {/* Articles Grid */}
-        <div className="articles-section">
-          <div className="section-header">
+        <div className="health-articles-section">
+          <div className="health-section-header">
             <h3>Latest Articles</h3>
             <p>Stay informed with our latest health and wellness content</p>
           </div>
 
-          <div className="articles-grid">
+          <div className="health-articles-grid">
             {filteredArticles.slice(1).map(article => (
-              <article key={article.id} className="article-card">
-                <div className="article-image">
+              <article key={article.id} className="health-article-card">
+                <div className="health-article-image">
                   <img src={article.image} alt={article.title} />
-                  <div className="category-tag">{categories.find(c => c.id === article.category)?.name}</div>
+                  <div className="health-category-tag">{categories.find(c => c.id === article.category)?.name}</div>
                 </div>
                 
-                <div className="article-content">
-                  <h4 className="article-title">{article.title}</h4>
-                  <p className="article-excerpt">{article.excerpt}</p>
+                <div className="health-article-content">
+                  <h4 className="health-article-title">{article.title}</h4>
+                  <p className="health-article-excerpt">{article.excerpt}</p>
                   
-                  <div className="article-tags">
+                  <div className="health-article-tags">
                     {article.tags.map(tag => (
-                      <span key={tag} className="tag">{tag}</span>
+                      <span key={tag} className="health-tag">{tag}</span>
                     ))}
                   </div>
                   
-                  <div className="article-meta">
+                  <div className="health-article-meta">
                     <span className="author">
                       <User size={14} />
                       {article.author}
@@ -208,14 +209,14 @@ const HealthyLiving = () => {
                     </span>
                   </div>
                   
-                  <button className="btn btn-secondary">Read More</button>
+                  <button className="health-btn health-btn-secondary">Read More</button>
                 </div>
               </article>
             ))}
           </div>
 
           {filteredArticles.length === 0 && (
-            <div className="no-results">
+            <div className="health-no-results">
               <p>No articles found matching your criteria.</p>
               <p>Try adjusting your search or category selection.</p>
             </div>
@@ -223,17 +224,17 @@ const HealthyLiving = () => {
         </div>
 
         {/* Newsletter Signup */}
-        <div className="newsletter-section">
-          <div className="newsletter-content">
+        <div className="health-newsletter-section">
+          <div className="health-newsletter-content">
             <h3>Stay Updated with Health Tips</h3>
             <p>Get the latest health and wellness articles delivered to your inbox</p>
-            <div className="newsletter-form">
+            <div className="health-newsletter-form">
               <input
                 type="email"
                 placeholder="Enter your email address"
-                className="newsletter-input"
+                className="health-newsletter-input"
               />
-              <button className="btn btn-primary">Subscribe</button>
+              <button className="health-btn health-btn-primary">Subscribe</button>
             </div>
           </div>
         </div>
@@ -243,4 +244,3 @@ const HealthyLiving = () => {
 };
 
 export default HealthyLiving;
-

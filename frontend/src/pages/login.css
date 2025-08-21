@@ -427,7 +427,6 @@ button.ghost:hover {
 .form-step.active { display: contents; }
 
 .button-row {
-  margin-top: 20px;
   display: flex;
   width: 100%;
   justify-content: space-between;

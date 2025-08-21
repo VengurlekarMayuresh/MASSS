@@ -46,7 +46,7 @@ const Home = () => {
       desc: "Discover tips and articles for a healthier lifestyle.",
       button: "Explore Secrets",
       action: "secrets",
-      href: "#secrets",
+      href: "/healthy-living", // Link to your healthy living page
     },
   ];
 
@@ -82,7 +82,7 @@ const Home = () => {
       desc: "Discover tips and articles for a healthier lifestyle.",
       button: "Explore Secrets",
       action: "secrets",
-      href: "#secrets",
+      href: "/healthy-living", // Link to your healthy living page
     },
   ];
 
@@ -90,18 +90,18 @@ const Home = () => {
   const options = isLoggedIn ? afterLoginOptions : beforeLoginOptions;
 
   // --- Event Handlers ---
-  const handleOptionClick = (e, action) => {
-    // For the login button, let the default link behavior happen
-    if (action === "login") return;
+  // const handleOptionClick = (e, action) => {
+  //   // For the login button, let the default link behavior happen
+  //   if (action === "login") return;
 
-    // For all other buttons, prevent default and show an alert
-    e.preventDefault();
-    alert(
-      `${
-        action.charAt(0).toUpperCase() + action.slice(1)
-      } feature coming soon!`
-    );
-  };
+  //   // For all other buttons, prevent default and show an alert
+  //   e.preventDefault();
+  //   alert(
+  //     `${
+  //       action.charAt(0).toUpperCase() + action.slice(1)
+  //     } feature coming soon!`
+  //   );
+  // };
 
   // --- Render Method ---
   return (
@@ -131,7 +131,6 @@ const Home = () => {
                 href={option.href}
                 className="hero-option"
                 data-action={option.action}
-                onClick={(e) => handleOptionClick(e, option.action)}
               >
                 <div
                   className="option-icon"
