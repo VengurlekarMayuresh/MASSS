@@ -66,6 +66,7 @@
   }
   .nav-container .search-bar {
     flex-grow: 1;
+    flex-shrink: 1;
     max-width: 500px;
   }
 }
@@ -80,6 +81,10 @@
 
 .search-bar {
   position: relative;
+  display: flex;
+  align-items: center;
+  max-width: 300px;
+  width: 100%;
 }
 
 .search-input {
@@ -104,24 +109,31 @@
   background: rgba(255, 255, 255, 0.2);
 }
 
-.search-btn {
+
+.search-1 {
   position: absolute;
-  right: 13px;
-  top: 50%;
+  right: 10px;
+  top: 20%;
   transform: translateY(-50%);
   background: transparent;
   border: none;
-  width: 40px;
-  height: 40px;
-  color: white;
+  color: rgba(255, 255, 255, 0.8);
   cursor: pointer;
+  padding: 8px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  width: 32px;
+  height: 32px;
+  border-radius: 50%;
   transition: all 0.3s ease;
-  font-size: 1.2rem;
 }
-.search-btn:hover {
-  transform: translateY(-50%) scale(1.4);
+.search-1:hover {
+  transform: translateY(-50%) scale(1.1);
+  color: white;
+  /* background: rgba(255, 255, 255, 0.1); */
+  background: transparent;
 }
-
 .nav-buttons {
   display: flex;
   gap: 1rem;

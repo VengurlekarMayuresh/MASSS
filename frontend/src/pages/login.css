@@ -82,9 +82,11 @@ form {
     background-color: var(--white);
     display: flex;
     flex-direction: column;
-    padding: 0 2.5rem;
+    padding: 2rem;
     width: 100%;
-    justify-content: center;
+    max-width: 400px;
+    /* Corrected: Use flex-start for multi-step form to prevent header overflow */
+    justify-content: flex-start;
     align-items: center;
     text-align: center;
 }
@@ -105,7 +107,8 @@ h3 {
 .input-group {
     position: relative;
     width: 100%;
-    margin-bottom: 1.25rem;
+    /* Corrected: Use a larger, consistent margin to hold the validation message */
+    margin-bottom: 2rem;
 }
 
 .input-group i {
@@ -116,6 +119,12 @@ h3 {
     color: #888;
     font-size: 1rem;
     z-index: 10;
+}
+
+.input-group i.password-toggle {
+    left: auto !important;
+    right: 18px !important;
+    z-index: 999;
 }
 
 input, select {
@@ -129,6 +138,16 @@ input, select {
     font-size: 0.95rem;
     transition: all 0.3s ease;
     color: var(--text-dark);
+}
+
+/* Special padding for password inputs to accommodate the eye icon */
+input[type="password"],
+input[type="text"]:has(+ .password-toggle) {
+    padding-right: 55px;
+}
+
+.input-group:has(.password-toggle) input {
+    padding-right: 55px;
 }
 
 input:focus, select:focus {
@@ -167,12 +186,29 @@ select {
 
 .password-toggle {
     position: absolute;
-    right: 20px;
+    right: 18px !important;
+    left: auto !important;
     top: 50%;
     transform: translateY(-50%);
     color: #888;
     cursor: pointer;
-    z-index: 11;
+    z-index: 999;
+    font-size: 1rem;
+    padding: 4px;
+    border-radius: 3px;
+    transition: all 0.3s ease;
+    width: 24px;
+    height: 24px;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    background: transparent;
+}
+
+.password-toggle:hover {
+    color: var(--primary-color);
+    background: rgba(20, 106, 93, 0.1);
+    transform: translateY(-50%) scale(1.05);
 }
 
 .validation-message {
@@ -180,8 +216,25 @@ select {
     color: var(--danger);
     text-align: left;
     margin-top: 5px;
+    display: none;
+    padding-left: 50px;
+    /* Corrected: Use absolute positioning to prevent form displacement */
+    position: absolute;
+    bottom: -1rem;
+    left: 0;
+    width: 100%;
+}
+
+.input-group.invalid input, .input-group.invalid select {
+    border-color: var(--danger);
+}
+
+.input-group.valid input, .input-group.valid select {
+    border-color: var(--success);
+}
+
+.input-group.invalid .validation-message {
     display: block;
-    padding-left: 10px;
 }
 
 button {
@@ -310,6 +363,7 @@ button.ghost:hover {
     font-size: 1rem;
     font-weight: 400;
     line-height: 1.6;
+    color:white;
     letter-spacing: 0.3px;
     margin: 1rem 0 2rem;
     opacity: 0.9;
@@ -386,6 +440,7 @@ button.ghost:hover {
         min-height: 100vh;
         border-radius: 0;
         box-shadow: none;
+        flex-direction: column;
     }
     .form-container {
         position: relative;
@@ -394,14 +449,102 @@ button.ghost:hover {
         min-height: 100vh;
         transform: none !important;
         opacity: 1 !important;
+        pointer-events: auto !important;
         z-index: 1 !important;
     }
-    .sign-in-container { display: flex; }
-    .sign-up-container { display: none; }
+    .sign-in-container { display: block; }
+    .sign-up-container { display: none; opacity: 1; z-index: 1; }
     .container.right-panel-active .sign-in-container { display: none; }
     .container.right-panel-active .sign-up-container { display: flex; }
     .overlay-container { display: none; }
-    form { padding: 2rem 1.5rem; }
-    button, .button-row button { max-width: 100%; }
-    .mobile-toggle { display: block; }
+    form { 
+        padding: 2rem 1.5rem; 
+        max-width: 100%;
+        min-height: 100vh;
+        justify-content: center;
+    }
+    input, select {
+        padding: 18px 20px 18px 50px;
+        font-size: 1rem;
+    }
+    .input-group:has(.password-toggle) input,
+    input[type="password"],
+    input[type="text"]:has(+ .password-toggle) {
+        padding-right: 55px;
+    }
+    .password-toggle {
+        right: 15px !important;
+        left: auto !important;
+        font-size: 0.9rem;
+    }
+    .input-group i.password-toggle {
+        left: auto !important;
+        right: 15px !important;
+    }
+    .select-wrapper::after {
+        right: 15px;
+    }
+    .input-group i {
+        left: 15px;
+        font-size: 0.9rem;
+    }
+    button { 
+        padding: 18px 40px;
+        font-size: 1rem;
+        width: 100%;
+        max-width: 100%;
+    }
+    .button-row button { max-width: 100%; }
+    .mobile-toggle { 
+        display: block;
+        margin-top: 1.5rem;
+        color: var(--primary-color);
+        font-weight: 600;
+        cursor: pointer;
+        font-size: 0.95rem;
+    }
+    .back-to-home {
+        top: 15px;
+        left: 15px;
+        font-size: 0.9rem;
+    }
+    .form-message {
+        margin-top: 1.5rem;
+        font-size: 0.95rem;
+        padding: 0 1rem;
+    }
+}
+
+@media (max-width: 480px) {
+    form {
+        padding: 1.5rem 1rem;
+    }
+    h1 {
+        font-size: 1.6rem;
+    }
+    input, select {
+        padding: 16px 18px 16px 45px;
+        font-size: 0.95rem;
+    }
+    .input-group:has(.password-toggle) input,
+    input[type="password"],
+    input[type="text"]:has(+ .password-toggle) {
+        padding-right: 50px;
+    }
+    .input-group i {
+        left: 15px;
+        font-size: 0.9rem;
+    }
+    .password-toggle {
+        right: 15px !important;
+        left: auto !important;
+        font-size: 0.85rem;
+    }
+    .input-group i.password-toggle {
+        left: auto !important;
+        right: 15px !important;
+    }
+    .select-wrapper::after {
+        right: 15px;
+    }
 }

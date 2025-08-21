@@ -38,7 +38,7 @@ const Header = () => {
         <nav className="nav-container">
           <div className="search-bar">
             <input type="text" className="search-input" placeholder="Search for doctors, services..." />
-            <button className="search-btn"><i className="fas fa-search" /></button>
+            <button className="search-1"><i className="fas fa-search" /></button>
           </div>
 
           <div className="nav-buttons">
@@ -84,14 +84,14 @@ const Header = () => {
       <div className={`search-dropdown ${showSearchDropdown ? '' : 'hidden'}`}>
         <div className="search-bar">
           <input type="text" className="search-input" placeholder="Search for doctors, services..." />
-          <button className="search-btn"><i className="fas fa-search" /></button>
+          <button className="search-1"><i className="fas fa-search" /></button>
         </div>
       </div>
 
       <div className={`mobile-menu ${showMobileMenu ? '' : 'hidden'}`}>
         <div className="search-bar">
           <input type="text" className="search-input" placeholder="Search for doctors, services..." />
-          <button className="search-btn"><i className="fas fa-search" /></button>
+          <button className="search-1"><i className="fas fa-search" /></button>
         </div>
 
         <div className="mobile-menu-nav">

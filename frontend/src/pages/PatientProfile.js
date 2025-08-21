@@ -99,7 +99,7 @@ const PatientProfile = () => {
         <>
             {/* The Header and Footer are included here as per your original file structure. */}
             {/* It is recommended to move these into a central App.js layout later. */}
-            <header className="header">{/* Your Header JSX */}</header>
+        
 
             <div id="notification" className={`notification ${notification.type} ${notification.show ? 'show' : ''}`}>
                 {notification.type === 'success' ? <CheckCircle /> : <AlertTriangle />}
@@ -160,7 +160,6 @@ const PatientProfile = () => {
                 </div>
             </main>
 
-            <footer className="footer">{/* Your Footer JSX */}</footer>
 
             {/* --- MODALS --- */}
             <Modal show={modals.editProfile} handleClose={() => handleModal('editProfile', 'close')}>
