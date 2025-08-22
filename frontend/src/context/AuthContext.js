@@ -37,10 +37,15 @@ export const AuthProvider = ({ children }) => {
       const firstName = nameParts[0] || "";
       const lastName = nameParts.slice(1).join(" ") || "";
 
+      // Determine which API endpoint to use based on role
+      const isDoctor = formData.role === 'doctor';
+      const apiEndpoint = isDoctor 
+        ? "http://localhost:5002/api/doctors/register"
+        : "http://localhost:5002/api/patients/register";
+
       const userPayload = {
         email: formData.email,
         password: formData.password,
-        role: formData.role || "patient",
         firstName,
         lastName,
         phone: formData.phone,
@@ -53,10 +58,22 @@ export const AuthProvider = ({ children }) => {
           state: "Maharashtra",
           area: "",
         },
+        // Add role-specific fields
+        ...(isDoctor && {
+          specialization: "General Medicine", // Default value
+          qualifications: "MBBS", // Default value
+          experience: 0, // Default value
+          licenseNumber: "To be updated" // Default value
+        }),
+        ...(!isDoctor && {
+          bloodType: "To be updated", // Default value for patients
+          allergies: "", // Default value for patients
+          medications: [] // Default value for patients
+        })
       };
 
-      // 1) Register in Mongo backend
-      const res = await fetch("http://localhost:5002/api/users/register", {
+      // 1) Register in Mongo backend using role-specific endpoint
+      const res = await fetch(apiEndpoint, {
         method: "POST",
         headers: { "Content-Type": "application/json" },
         body: JSON.stringify(userPayload),
@@ -104,15 +121,29 @@ export const AuthProvider = ({ children }) => {
   // ---------- LOGIN ----------
   const login = async (email, password) => {
     try {
-      // 1) Login via Mongo
-      const res = await fetch("http://localhost:5002/api/users/login", {
+      // Try patient login first, then doctor login
+      let res = await fetch("http://localhost:5002/api/patients/login", {
         method: "POST",
         headers: { "Content-Type": "application/json" },
         body: JSON.stringify({ email, password }),
       });
 
-      const payload = await res.json().catch(() => ({}));
-      if (!res.ok) throw new Error(payload?.message || "Invalid credentials");
+      let payload = await res.json().catch(() => ({}));
+      
+      // If patient login fails, try doctor login
+      if (!res.ok) {
+        res = await fetch("http://localhost:5002/api/doctors/login", {
+          method: "POST",
+          headers: { "Content-Type": "application/json" },
+          body: JSON.stringify({ email, password }),
+        });
+        
+        payload = await res.json().catch(() => ({}));
+        
+        if (!res.ok) {
+          throw new Error(payload?.message || "Invalid credentials");
+        }
+      }
 
       // 2) Verify Firebase
       await signInWithEmailAndPassword(auth, email, password);
@@ -144,12 +175,20 @@ export const AuthProvider = ({ children }) => {
     }
   };
 
-    const updateProfile = async (updateData) => {
+  // ---------- UPDATE PROFILE ----------
+  const updateProfile = async (updateData) => {
     try {
       const token = localStorage.getItem("token");
       if (!token) throw new Error("Authentication token not found.");
 
-      const res = await fetch("http://localhost:5002/api/users/profile", {
+      // Determine which API endpoint to use based on user role
+      const user = JSON.parse(localStorage.getItem("user") || "{}");
+      const isDoctor = user.role === 'doctor';
+      const apiEndpoint = isDoctor 
+        ? "http://localhost:5002/api/doctors/profile"
+        : "http://localhost:5002/api/patients/profile";
+
+      const res = await fetch(apiEndpoint, {
         method: "PUT",
         headers: {
           "Content-Type": "application/json",

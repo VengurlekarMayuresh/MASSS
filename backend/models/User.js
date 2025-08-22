@@ -49,13 +49,13 @@ const userSchema = new mongoose.Schema({
       relationship: { type: String, required: false },
       phone: { type: String, required: false }
     },
-     insuranceInfo: {
-    provider: { type: String, required: false },
-    policyNumber: { type: String, required: false },
-    coverageType: { type: String, required: false },
-    effectiveDate: { type: Date, required: false },
-    expirationDate: { type: Date, required: false }
-  },
+    insuranceInfo: {
+      provider: { type: String, required: false },
+      policyNumber: { type: String, required: false },
+      coverageType: { type: String, required: false },
+      effectiveDate: { type: Date, required: false },
+      expirationDate: { type: Date, required: false }
+    }
   },
   // Doctor-specific fields
   doctorInfo: {
@@ -69,7 +69,37 @@ const userSchema = new mongoose.Schema({
       day: { type: String, enum: ['monday', 'tuesday', 'wednesday', 'thursday', 'friday', 'saturday', 'sunday'] },
       startTime: { type: String, required: false },
       endTime: { type: String, required: false }
-    }]
+    }],
+    // Additional doctor-specific fields based on HTML structure
+    clinicalExpertise: {
+      areasOfFocus: [{ type: String, trim: true }],
+      procedures: [{ type: String, trim: true }],
+      treatmentPhilosophy: { type: String, required: false },
+      researchInterests: { type: String, required: false }
+    },
+    patientExperience: {
+      avgWaitTime: { type: String, required: false },
+      bedsideManner: { type: Number, required: false, min: 0, max: 100 },
+      newPatientAcceptance: { type: Boolean, default: true }
+    },
+    insuranceBilling: {
+      governmentSchemes: [{ type: String, trim: true }],
+      privateInsurance: [{ type: String, trim: true }],
+      paymentOptions: { type: String, required: false }
+    },
+    practiceInfo: {
+      primaryLocation: {
+        name: { type: String, required: false },
+        address: { type: String, required: false },
+        phone: { type: String, required: false }
+      },
+      officeHours: {
+        weekdays: { type: String, required: false },
+        saturday: { type: String, required: false },
+        sunday: { type: String, required: false }
+      },
+      emergencyContact: { type: String, required: false }
+    }
   },
   // Common fields
   preferences: {

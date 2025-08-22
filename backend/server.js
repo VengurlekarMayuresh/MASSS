@@ -30,6 +30,8 @@ const connectDB = async () => {
 const providerRoutes = require('./routes/providerRoutes');
 const userRoutes = require('./routes/userRoutes');
 const appointmentRoutes = require('./routes/appointmentRoutes');
+const patientRoutes = require('./routes/patientRoutes');
+const doctorRoutes = require('./routes/doctorRoutes');
 
 // Routes
 app.get('/', (req, res) => {
@@ -53,6 +55,8 @@ app.get('/api/health', (req, res) => {
 app.use('/api/providers', providerRoutes);
 app.use('/api/users', userRoutes);
 app.use('/api/appointments', appointmentRoutes);
+app.use('/api/patients', patientRoutes);
+app.use('/api/doctors', doctorRoutes);
 
 // Error handling middleware
 app.use((err, req, res, next) => {
@@ -81,6 +85,8 @@ const startServer = async () => {
       console.log(`🚀 Server running on port ${PORT}`);
       console.log(`📱 API available at http://localhost:${PORT}`);
       console.log(`🏥 MASSS Healthcare Backend Ready!`);
+      console.log(`👥 Patient routes: /api/patients`);
+      console.log(`👨‍⚕️ Doctor routes: /api/doctors`);
     });
   } catch (error) {
     console.error('❌ Server startup failed:', error);

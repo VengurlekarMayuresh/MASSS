@@ -21,7 +21,15 @@ const Login = () => {
     city: '',
     zipCode: '',
     password: '',
-    confirmPassword: ''
+    confirmPassword: '',
+    // Role-specific fields
+    specialization: '',
+    qualifications: '',
+    experience: '',
+    licenseNumber: '',
+    bloodType: '',
+    allergies: '',
+    medications: ''
   });
 
   const [signInData, setSignInData] = useState({
@@ -40,7 +48,12 @@ const Login = () => {
   // Redirect if already logged in
   useEffect(() => {
     if (currentUser) {
-      navigate('/', { replace: true });
+      // Redirect based on role
+      if (currentUser.role === 'doctor') {
+        navigate('/doctor-profile', { replace: true });
+      } else {
+        navigate('/patient-profile', { replace: true });
+      }
     }
   }, [currentUser, navigate]);
 
@@ -82,7 +95,8 @@ const Login = () => {
 
   const validateStep2 = () => {
     const newErrors = {};
-    const { address, city, zipCode, password, confirmPassword } = signUpData;
+    const { address, city, zipCode, password, confirmPassword, role } = signUpData;
+    
     if (!address.trim()) newErrors.address = 'Address is required.';
     if (!city.trim()) newErrors.city = 'City is required.';
     if (!zipCode.trim()) {
@@ -97,6 +111,13 @@ const Login = () => {
     }
     if (password !== confirmPassword) {
       newErrors.confirmPassword = 'Passwords do not match.';
+    }
+
+    // Role-specific validation
+    if (role === 'doctor') {
+      if (!signUpData.specialization.trim()) newErrors.specialization = 'Specialization is required.';
+      if (!signUpData.qualifications.trim()) newErrors.qualifications = 'Qualifications are required.';
+      if (!signUpData.licenseNumber.trim()) newErrors.licenseNumber = 'License number is required.';
     }
 
     setErrors(newErrors);
@@ -131,11 +152,14 @@ const Login = () => {
 
       if (result.success) {
         setMessage({ text: "✅ Account created! Redirecting...", type: "success" });
-        // navigate immediately and also let the currentUser effect catch it
+        // Redirect based on role
         setTimeout(() => {
-          setMessage({ text: '', type: '' });
-          navigate("/", { replace: true });
-        }, 900);
+          if (result.user.role === 'doctor') {
+            navigate('/doctor-profile', { replace: true });
+          } else {
+            navigate('/patient-profile', { replace: true });
+          }
+        }, 1500);
       } else {
         setMessage({ text: result.message || "Registration failed", type: "error" });
       }
@@ -158,7 +182,14 @@ const Login = () => {
 
     if (result.success) {
       setMessage({ text: "Welcome back! Redirecting...", type: "success" });
-      setTimeout(() => navigate("/", { replace: true }), 600);
+      // Redirect based on role
+      setTimeout(() => {
+        if (result.user.role === 'doctor') {
+          navigate('/doctor-profile', { replace: true });
+        } else {
+          navigate('/patient-profile', { replace: true });
+        }
+      }, 1000);
     } else {
       setMessage({ text: result.message || "Invalid credentials", type: "error" });
       setIsLoading(false);
@@ -240,6 +271,52 @@ const Login = () => {
                 <input type="text" name="zipCode" placeholder="Zip Code" value={signUpData.zipCode} onChange={handleSignUpChange} />
                 <span className="validation-message">{errors.zipCode || ''}</span>
               </div>
+
+              {/* Role-specific fields */}
+              {signUpData.role === 'doctor' && (
+                <>
+                  <div className={`input-group ${errors.specialization ? 'invalid' : ''}`}>
+                    <i className="fas fa-stethoscope"></i>
+                    <input type="text" name="specialization" placeholder="Specialization (e.g., Cardiology)" value={signUpData.specialization} onChange={handleSignUpChange} />
+                    <span className="validation-message">{errors.specialization || ''}</span>
+                  </div>
+                  <div className={`input-group ${errors.qualifications ? 'invalid' : ''}`}>
+                    <i className="fas fa-graduation-cap"></i>
+                    <input type="text" name="qualifications" placeholder="Qualifications (e.g., MBBS, MD)" value={signUpData.qualifications} onChange={handleSignUpChange} />
+                    <span className="validation-message">{errors.qualifications || ''}</span>
+                  </div>
+                  <div className={`input-group ${errors.licenseNumber ? 'invalid' : ''}`}>
+                    <i className="fas fa-id-card"></i>
+                    <input type="text" name="licenseNumber" placeholder="Medical License Number" value={signUpData.licenseNumber} onChange={handleSignUpChange} />
+                    <span className="validation-message">{errors.licenseNumber || ''}</span>
+                  </div>
+                </>
+              )}
+
+              {signUpData.role === 'patient' && (
+                <>
+                  <div className={`input-group ${errors.bloodType ? 'invalid' : ''}`}>
+                    <i className="fas fa-tint"></i>
+                    <select name="bloodType" value={signUpData.bloodType} onChange={handleSignUpChange}>
+                      <option value="">Select Blood Type</option>
+                      <option value="A+">A+</option>
+                      <option value="A-">A-</option>
+                      <option value="B+">B+</option>
+                      <option value="B-">B-</option>
+                      <option value="AB+">AB+</option>
+                      <option value="AB-">AB-</option>
+                      <option value="O+">O+</option>
+                      <option value="O-">O-</option>
+                    </select>
+                    <span className="validation-message">{errors.bloodType || ''}</span>
+                  </div>
+                  <div className={`input-group`}>
+                    <i className="fas fa-exclamation-triangle"></i>
+                    <input type="text" name="allergies" placeholder="Allergies (comma separated)" value={signUpData.allergies} onChange={handleSignUpChange} />
+                  </div>
+                </>
+              )}
+
               <div className={`input-group ${errors.password ? 'invalid' : ''}`}>
                 <i className="fas fa-lock"></i>
                 <input type={showPassword ? "text" : "password"} name="password" placeholder="Password" value={signUpData.password} onChange={handleSignUpChange} />
@@ -302,7 +379,7 @@ const Login = () => {
                 setMessage({ text: '', type: '' });
               }}
             >
-              Don’t have an account? Sign Up
+              Don't have an account? Sign Up
             </a>
           </form>
         </div>

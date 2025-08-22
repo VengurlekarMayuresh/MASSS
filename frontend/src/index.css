@@ -24,7 +24,7 @@
 
 body {
   font-family: "Inter", "Poppins", sans-serif;
-  font-size: 16px;
+  font-size: 20px;
   line-height: 1.6;
   color: var(--text-dark);
   overflow-x: hidden;
@@ -41,6 +41,7 @@ h1, h2, h3, h4, h5, h6 {
 p {
   color: var(--text-light);
   margin-bottom: 1rem;
+   font-size: 20px;
 }
 
 a {

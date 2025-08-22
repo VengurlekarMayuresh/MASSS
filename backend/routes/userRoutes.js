@@ -21,7 +21,17 @@ router.post('/register', async (req, res) => {
       phone,
       dateOfBirth,
       gender,
-      address
+      address,
+      // Doctor-specific fields
+      specialization,
+      qualifications,
+      experience,
+      licenseNumber,
+      // Patient-specific fields
+      bloodType,
+      allergies,
+      medications,
+      insuranceInfo
     } = req.body;
 
     // Check if user exists
@@ -33,8 +43,8 @@ router.post('/register', async (req, res) => {
       });
     }
 
-    // Create new user
-    const user = new User({
+    // Create new user with role-specific data
+    const userData = {
       email: email.toLowerCase(),
       password,
       role: role || 'patient',
@@ -46,8 +56,56 @@ router.post('/register', async (req, res) => {
         phone,
         address: address || {}
       }
-    });
+    };
 
+    // Add role-specific information
+    if (role === 'doctor') {
+      userData.doctorInfo = {
+        specialization,
+        qualifications: qualifications ? qualifications.split(',').map(q => q.trim()) : [],
+        experience,
+        licenseNumber,
+        // Initialize with default values for new fields
+        clinicalExpertise: {
+          areasOfFocus: ['General Consultation', 'Preventive Medicine', 'Health Checkups'],
+          procedures: ['Clinical Examination', 'Health Screening', 'Consultation'],
+          treatmentPhilosophy: 'I believe in providing personalized, compassionate care to each patient.',
+          researchInterests: 'Interested in preventive medicine and patient care quality improvement.'
+        },
+        patientExperience: {
+          avgWaitTime: '15-20 minutes',
+          bedsideManner: 95,
+          newPatientAcceptance: true
+        },
+        insuranceBilling: {
+          governmentSchemes: ['CGHS', 'ESI'],
+          privateInsurance: ['Star Health', 'ICICI Lombard', 'HDFC Ergo'],
+          paymentOptions: 'Cash, Card, UPI accepted'
+        },
+        practiceInfo: {
+          primaryLocation: {
+            name: 'Main Hospital',
+            address: 'Mumbai - 400001',
+            phone: '+91 22 1234 5678'
+          },
+          officeHours: {
+            weekdays: '9:00 AM - 5:00 PM',
+            saturday: '9:00 AM - 1:00 PM',
+            sunday: 'Closed'
+          },
+          emergencyContact: 'Call hospital main number for emergencies'
+        }
+      };
+    } else if (role === 'patient') {
+      userData.patientInfo = {
+        bloodType,
+        allergies: allergies ? allergies.split(',').map(a => a.trim()) : [],
+        medications: medications || [],
+        insuranceInfo: insuranceInfo || {}
+      };
+    }
+
+    const user = new User(userData);
     await user.save();
 
     // Generate JWT token
