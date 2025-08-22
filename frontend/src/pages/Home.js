@@ -107,10 +107,10 @@ const Home = () => {
   return (
     <>
       {/* Hero Section */}
-      <section className="hero" id="home">
-        <div className="hero-container">
-          <div className="hero-top-content">
-            <div className="hero-left">
+      <section className="home-hero" id="home">
+        <div className="home-hero-container">
+          <div className="home-hero-top-content">
+            <div className="home-hero-left">
               <h1>Welcome to MASSS HealthCare</h1>
               <p className="hero-subtitle">
                 Your trusted partner in health and wellness. Get expert medical
@@ -120,7 +120,7 @@ const Home = () => {
                 Explore Our Services
               </a>
             </div>
-            <div className="hero-right">
+            <div className="home-hero-right">
               <div className="hero-image-container"></div>
             </div>
           </div>

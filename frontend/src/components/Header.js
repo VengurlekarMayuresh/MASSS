@@ -26,19 +26,25 @@ const Header = () => {
   return (
     <header className="header">
       <div className="header-container">
-        <Link to="/" className="logo">
+        <Link to="/" className="header-logo">
           <img
             src="https://res.cloudinary.com/ds20dwlrs/image/upload/v1753886991/logo_M-Photoroom_p1rofe.png"
             alt="MASSS Logo"
-            className="logo-img"
+            className="header-logo-img"
           />
-          <span>MASSS</span>
+          <span className="header-logo-text">MASSS</span>
         </Link>
 
-        <nav className="nav-container">
-          <div className="search-bar">
-            <input type="text" className="search-input" placeholder="Search for doctors, services..." />
-            <button className="search-1"><i className="fas fa-search" /></button>
+        <nav className="header-nav">
+          <div className="header-search">
+            <input 
+              type="text" 
+              className="header-search-input" 
+              placeholder="Search for doctors, services..." 
+            />
+            <button className="header-search-btn">
+              <i className="fas fa-search " />
+            </button>
           </div>
 
           <div className="nav-buttons">
@@ -82,16 +88,28 @@ const Header = () => {
       </div>
 
       <div className={`search-dropdown ${showSearchDropdown ? '' : 'hidden'}`}>
-        <div className="search-bar">
-          <input type="text" className="search-input" placeholder="Search for doctors, services..." />
-          <button className="search-1"><i className="fas fa-search" /></button>
+        <div className="header-search">
+          <input 
+            type="text" 
+            className="header-search-input" 
+            placeholder="Search for doctors, services..." 
+          />
+          <button className="header-search-btn">
+            <i className="fas fa-search" />
+          </button>
         </div>
       </div>
 
       <div className={`mobile-menu ${showMobileMenu ? '' : 'hidden'}`}>
-        <div className="search-bar">
-          <input type="text" className="search-input" placeholder="Search for doctors, services..." />
-          <button className="search-1"><i className="fas fa-search" /></button>
+        <div className="mobile-search">
+          <input 
+            type="text" 
+            className="mobile-search-input" 
+            placeholder="Search for doctors, services..." 
+          />
+          <button className="mobile-search-btn">
+            <i className="fas fa-search" />
+          </button>
         </div>
 
         <div className="mobile-menu-nav">
